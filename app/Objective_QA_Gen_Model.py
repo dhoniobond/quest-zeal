@@ -1,3 +1,4 @@
+import os
 import toolz
 import time
 import string
@@ -26,6 +27,9 @@ from sense2vec import Sense2Vec
 from collections import OrderedDict
 from typing import List
 from logging import NullHandler
+# Fine-tuned checkpoints and sense2vec vectors (not committed); see README
+MODEL_DIR = os.environ.get("QUESTZEAL_MODEL_DIR", "ml_models")
+
 from transformers import (
     AdamW,
     T5ForConditionalGeneration,
@@ -277,9 +281,7 @@ class DistractorGenerator:
 
         self.tokenizer_len = len(self.tokenizer)
 
-        checkpoint_path = (
-            "C:/Users/yellapup/Desktop/WorkSpace/ml_models/race-distractors.ckpt"
-        )
+        checkpoint_path = os.path.join(MODEL_DIR, "race-distractors.ckpt")
         self.dg_model = QGModel.load_from_checkpoint(checkpoint_path)
         self.dg_model.freeze()
         self.dg_model.eval()
@@ -434,7 +436,7 @@ class QuestionGenerator:
         # print('tokenizer len after: ', len(self.tokenizer))
         self.tokenizer_len = len(self.tokenizer)
 
-        checkpoint_path = "C:/Users/yellapup/Desktop/WorkSpace/ml_models/multitask-qg-ag.ckpt"
+        checkpoint_path = os.path.join(MODEL_DIR, "multitask-qg-ag.ckpt")
         self.qg_model = QGModel.load_from_checkpoint(checkpoint_path)
         self.qg_model.freeze()
         self.qg_model.eval()
@@ -500,9 +502,7 @@ class QuestionGenerator:
 
 class Sense2VecDistractorGeneration:
     def __init__(self):
-        self.s2v = Sense2Vec().from_disk(
-            "C:/Users/yellapup/Desktop/WorkSpace/ml_models/s2v_old"
-        )
+        self.s2v = Sense2Vec().from_disk(os.path.join(MODEL_DIR, "s2v_old"))
 
     def generate(self, answer: str, desired_count: int) -> List[str]:
         distractors = []

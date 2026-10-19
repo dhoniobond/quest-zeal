@@ -1,5 +1,23 @@
-__pycache__
-app\__pycache__
-env
-ml_models
-Lib
+# Python
+__pycache__/
+*.py[cod]
+env/
+venv/
+.venv/
+Lib/
+
+# Local config and data
+.env
+app/db.sqlite3
+*.sqlite3
+
+# Large model files (see README)
+ml_models/
+*.ckpt
+*.pkl
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

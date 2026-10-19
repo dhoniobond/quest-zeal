@@ -1,4 +1,3 @@
-from msilib.schema import Environment
 import os
 from   decouple import config
 

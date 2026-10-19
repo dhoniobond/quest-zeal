@@ -17,7 +17,6 @@ from app.forms  import LoginForm, RegisterForm
 from app.QA_Gen_Model import QA_Gen_Model
 from app.Objective_QA_Gen_Model import MCQ_Generator
 from app.QA_Score import QA_Score
-# model = pickle.load(open('app/model.pkl','rb'))
 UPLOAD_FOLDER = 'Uploaded Material'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # provide login manager with load_user callback
@@ -230,7 +229,7 @@ def Subjective_QA_Generation(id):
             for i in range(3):
                 response.append(request.form.get(str(i)))
             data = Tests.query.get(id)
-            path = 'Uploaded Material/'+data.file_name
+            path = os.path.join(app.config['UPLOAD_FOLDER'], data.file_name)
             with open(path, 'r') as f:
                 content = f.read()
             
@@ -241,7 +240,7 @@ def Subjective_QA_Generation(id):
             return redirect(url_for('responses', score=score, id=id))
     else :    
         if name!="admin" :
-            path = 'Uploaded Material/'+data.file_name
+            path = os.path.join(app.config['UPLOAD_FOLDER'], data.file_name)
             with open(path, 'r') as f:
                 content = f.read()
             que, ans = QA_Gen_Model.generate_test(content)
@@ -259,7 +258,7 @@ def Objective_QA_Generation(id):
     name = current_user.user
     data = Tests.query.get(id)
     if name!="admin" :
-        path = 'Uploaded Material/'+data.file_name
+        path = os.path.join(app.config['UPLOAD_FOLDER'], data.file_name)
         with open(path, 'r') as f:
             content = f.read()
         Objective_Questions = MCQ_Generator.generate_mcq_questions(content, 9)
@@ -301,6 +300,7 @@ def responses(score, id):
 
 
 @app.route('/add', methods=["POST"])
+@login_required
 def add():
     # In this function we will input data from the
     # form page and store it in our database. Remember
@@ -310,10 +310,9 @@ def add():
     course_name = request.form.get("course_name")
     test_name = request.form.get("test_name")
     file = request.files['file']
-    file_name = file.filename
-    print(file_name)
-    if file.filename != '':
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename)))
+    file_name = secure_filename(file.filename)
+    if file_name != '':
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
 
     # create an object of the course class of models and
     # store data as a row in our datatable
@@ -326,6 +325,7 @@ def add():
         return redirect('/tutorDashboard')
 
 @app.route('/delete/<int:id>')
+@login_required
 def erase(id):
      
     # deletes the data on the basis of unique id 
@@ -335,6 +335,7 @@ def erase(id):
     return redirect('/tutorDashboard')
 
 @app.route('/dlt/<int:id>')
+@login_required
 def dlt(id):
     # deletes the data on the basis of unique id 
     data = Students.query.get(id)
